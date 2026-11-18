@@ -4,7 +4,7 @@ action=${1:?build or publish required}
 case "$action" in build|publish) ;; *) exit 2 ;; esac
 series=${SERIES:-4}
 image=${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}
-base=${BASE_IMAGE:-ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble}
+base=${BASE_IMAGE:-ghcr.io/linuxserver/baseimage-selkies:debiantrixie}
 version=$(python3 scripts/versions.py get "$series" version)
 checksum=$(python3 scripts/versions.py get "$series" sha256)
 if [[ -z "$checksum" ]]; then

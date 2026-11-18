@@ -1,6 +1,6 @@
-# Ahnenblatt mit Wine und KasmVNC
+# Ahnenblatt mit Wine und Selkies
 
-Ahnenblatt im Browser, mit Wine und KasmVNC. Das Image enthält die normale
+Ahnenblatt im Browser, mit Wine und Selkies. Das Image enthält die normale
 Windows-Installation und einen Webdateimanager für Uploads und Downloads.
 
 **Image:** `ghcr.io/vknmnn/ahnenblatt-docker` · **Plattform:** `linux/amd64`
@@ -31,7 +31,8 @@ make up SERIES=4
 
 Nach erfolgreicher Veröffentlichung kann das Image direkt aus GHCR bezogen
 werden; alternativ lässt es sich selbst bauen. Die Oberfläche ist unter
-<http://localhost:3000> erreichbar.
+<https://localhost:3001> erreichbar (mit selbstsigniertem Zertifikat). HTTP auf Port 3000 steht für einen
+HTTPS-Reverse-Proxy weiterhin zur Verfügung.
 
 ```sh
 make logs
@@ -44,7 +45,9 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 | --- | --- |
 | `SERIES` | Ahnenblatt-Versionslinie, standardmäßig `4` |
 | `CONFIG_DIR` | Persistenter Datenordner |
-| `HTTP_PORT` | Port der Weboberfläche, standardmäßig `3000` |
+| `HTTPS_PORT` | HTTPS-Port der Weboberfläche, standardmäßig `3001` |
+| `HTTP_PORT` | HTTP-Port für einen Reverse-Proxy, standardmäßig `3000` |
+| `APP_LOCALE` | Wine-/Desktop-Locale, standardmäßig `de_DE.UTF-8` |
 | `PUID`, `PGID` | Benutzer- und Gruppen-ID für Dateirechte |
 | `CUSTOM_USER`, `PASSWORD` | Optionale HTTP-Basisauthentifizierung |
 
@@ -64,14 +67,28 @@ Das Verzeichnis `/config` enthält alle persistenten Daten:
 /config/versions/<Serie>/wineprefix/   Wine-Profil mit Einstellungen
 ```
 
-Der Webdateimanager öffnet `/config/files`, das in Wine als Laufwerk `D:`
-verfügbar ist. Bilder nach `Bilder` hochladen und in Ahnenblatt unter
-`D:\Bilder` auswählen. Ahnendateien entsprechend über `D:\Ahnenblatt` öffnen.
+Selkies bietet Datei-Uploads per Drag-and-drop oder Upload-Button sowie Downloads
+im Bereich „Files“. `FILE_MANAGER_PATH=/config/files` setzt den Transferordner,
+der in Wine als Laufwerk `D:` verfügbar ist. Hochgeladene Dateien in Ahnenblatt
+unter `D:` auswählen; für die dauerhafte Ablage stehen die Unterordner
+`Ahnenblatt`, `Bilder` und `Ausgaben` bereit.
 
 Einstellungen und im Wine-Profil gespeicherte Freischaltdaten bleiben im
 Datenordner erhalten. Diesen Ordner regelmäßig sichern und bei Imageupdates
 weiterverwenden. Für jede Hauptversion ein eigenes Profil verwenden.
 Lizenzschlüssel und persönliche Daten gehören weder ins Repository noch ins Image.
+
+## Sprachen
+
+Alle mit dem jeweiligen Installer gelieferten Sprachdateien sind enthalten.
+Die Sprache wird in Ahnenblatt unter **Extras → Sprache** gewählt und im
+persönlichen Profil gespeichert. Je nach Version unterscheiden sich die
+verfügbaren Übersetzungen; unvollständige Texte können auf Englisch erscheinen.
+
+`APP_LOCALE=de_DE.UTF-8` in `.env` legt die Wine-/Desktop-Umgebung fest, zum
+Beispiel `en_US.UTF-8` für Englisch. Sie ersetzt nicht die Sprachauswahl in
+Ahnenblatt und setzt bestehende Einstellungen nicht zurück. Noto-Schriftarten
+ergänzen die Zeichenabdeckung für verschiedene Schriftsysteme.
 
 ## Selbst bauen und testen
 
@@ -86,7 +103,7 @@ make up SERIES=4
 ```
 
 `make check` führt statische Prüfungen und Unit-Tests aus. `make smoke` prüft
-in einem isolierten Container ohne Netzwerk den Anwendungsstart, den Dateizugriff
+in einem isolierten Container ohne Netzwerk den Anwendungsstart, Selkies-Uploads und -Downloads, den Dateizugriff
 über `D:` und den Erhalt der Daten nach einem Neustart. Für alle Varianten gibt
 es `make build-all` und `make smoke-all`.
 
@@ -127,6 +144,11 @@ Release-Branches übernommen.
 ## Weitere Informationen
 
 - [Ahnenblatt](https://www.ahnenblatt.de/)
-- [LinuxServer KasmVNC-Basisimage](https://github.com/linuxserver/docker-baseimage-kasmvnc)
+- [LinuxServer Selkies-Basisimage](https://github.com/linuxserver/docker-baseimage-selkies)
+
+Dieses Image wird unabhängig von vKnmnn gepflegt. Es ist kein offizielles
+LinuxServer.io- oder Ahnenblatt-Image. Support und Fehlerberichte gehören in die
+[Issues dieses Repositorys](https://github.com/vKnmnn/ahnenblatt-docker/issues).
+Das Startbanner folgt den [LSIO-Branding-Vorgaben](https://docs.linuxserver.io/general/container-branding/).
 
 Ahnenblatt und die enthaltenen Schriftarten behalten ihre jeweiligen Herstellerlizenzen.
