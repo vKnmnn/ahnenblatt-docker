@@ -34,8 +34,19 @@ wait_for_window() {
     return 1
 }
 wait_for_window
-# Simulate a file uploaded by the web file manager, then read it through Wine.
-docker exec -u abc "$name" bash -c 'echo upload-smoke-ok > /config/files/upload-smoke.txt'
+# Check the Selkies frontend as well as the Wine window.
+docker exec "$name" curl --fail --silent --show-error --insecure \
+    --retry 30 --retry-connrefused --retry-delay 1 --max-time 5 \
+    https://localhost:3001/api/health >/dev/null
+docker exec "$name" curl --fail --silent --show-error --insecure https://localhost:3001/ >/dev/null
+docker exec "$name" bash -c 'test "$FILE_MANAGER_PATH" = /config/files'
+# Exercise the same upload/download API as the browser, then read through Wine.
+docker exec "$name" curl --fail --silent --show-error --insecure \
+    -H 'Origin: https://localhost:3001' -H 'X-Upload-Path: upload-smoke.txt' \
+    --data-binary 'upload-smoke-ok' https://localhost:3001/api/upload >/dev/null
+download=$(docker exec "$name" curl --fail --silent --show-error --insecure \
+    https://localhost:3001/api/files/upload-smoke.txt)
+[[ "$download" == upload-smoke-ok ]]
 docker exec -u abc "$name" bash -c '
     set -euo pipefail
     series=$(python3 -c '\''import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])'\'')
@@ -53,4 +64,4 @@ docker exec -u abc "$name" bash -c '
     grep -qx persisted "/config/versions/$series/wineprefix/smoke-sentinel"
     grep -qx upload-smoke-ok /config/files/upload-smoke.txt
 '
-echo "Smoke test passed: $image (window, offline startup, D: mapping, persistence)"
+echo "Smoke test passed: $image (window, offline startup, Selkies upload/download, D: mapping, persistence)"

@@ -8,11 +8,13 @@ services:
       TZ: ${TZ:-Europe/Berlin}
       CUSTOM_USER: ${CUSTOM_USER:-abc}
       PASSWORD: ${PASSWORD:-}
-      FM_HOME: /config/files
+      FILE_MANAGER_PATH: /config/files
+      LC_ALL: ${APP_LOCALE:-de_DE.UTF-8}
     volumes:
       - ${CONFIG_DIR:-./data/3}:/config
     ports:
       - "${HTTP_PORT:-3000}:3000"
+      - "${HTTPS_PORT:-3001}:3001"
     shm_size: 1gb
     restart: unless-stopped
 
