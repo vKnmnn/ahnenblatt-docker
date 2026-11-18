@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 image=${1:?image tag required}
+# Include the actual daemon version when diagnosing Wine socket failures.
+docker version --format 'Docker server: {{.Server.Version}}'
 name="ahnenblatt-smoke-$$-$RANDOM"
 volume="$name-config"
 created_volume=false

@@ -3,15 +3,19 @@ set -euo pipefail
 series=${1:?series required}
 export HOME=/tmp/build-home WINEPREFIX=/tmp/build-prefix WINEARCH=win64
 export WINEDEBUG=-all WINEDLLOVERRIDES='mscoree=;winemenubuilder.exe=d'
+# shellcheck source=scripts/build-steps.sh
+source "$(dirname "${BASH_SOURCE[0]}")/build-steps.sh"
 mkdir -p "$HOME" /build-output/app /build-output/fonts
-timeout 180 wineboot -u
-timeout 180 wineserver -w
+run_step 'initialize Wine' 180 wineboot -u
+run_step 'wait for Wine initialization' 180 wineserver -w
 # Preserve the existing container's font choices without shipping its prefix.
-timeout 600 winetricks -q tahoma uff
-timeout 180 wineserver -w
-timeout 300 wine start /wait /unix /tmp/ahnenblatt-setup.exe \
-    /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART '/DIR=C:\AhnenblattApp'
-timeout 180 wineserver -w
+run_step 'install Tahoma and Ubuntu fonts' 600 winetricks -q tahoma uff
+run_step 'wait for font registration' 180 wineserver -w
+run_step "install Ahnenblatt $series" 300 wine start /wait /unix /tmp/ahnenblatt-setup.exe \
+    /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART '/DIR=C:\AhnenblattApp' \
+    '/LOG=Z:\tmp\ahnenblatt-install.log'
+stop_build_wine
+echo '[build] Exporting application files and fonts'
 test -d "$WINEPREFIX/drive_c/AhnenblattApp"
 cp -a "$WINEPREFIX/drive_c/AhnenblattApp/." /build-output/app/
 find "$WINEPREFIX/drive_c/windows/Fonts" -maxdepth 1 -type f \

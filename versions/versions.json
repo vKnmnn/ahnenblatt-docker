@@ -2,25 +2,25 @@
   "2.99": {
     "version": "2.99p",
     "url": "https://www.ahnenblatt.de/downloads/absetup.exe",
-    "sha256": null,
+    "sha256": "be8fe1402606c8e9504e416cbfd0fa19e89422876e2d9ed680630315bd3d4506",
     "ini": "Ahnenblatt.ini"
   },
   "3": {
     "version": "3.60",
     "url": "https://www.ahnenblatt.de/downloads/absetup3.exe",
-    "sha256": null,
+    "sha256": "b40b6b6aa87790428b85e30b9923ec9ac6271282cba0fea80a2b3ed4521c8769",
     "ini": "Ahnenblatt3.ini"
   },
   "4": {
     "version": "4.55",
     "url": "https://www.ahnenblatt.de/downloads/absetup4.x64.exe",
-    "sha256": null,
+    "sha256": "2000bfdfa1f9c875e1e41ee0d83d391fe977681364b6111bc8448a5ef4d32c53",
     "ini": "Ahnenblatt4.ini"
   },
   "5": {
     "version": "5.02",
     "url": "https://www.ahnenblatt.de/downloads/absetup5.x64.exe",
-    "sha256": null,
+    "sha256": "42e8450934c6995f2de36be0fb230ae2286ccf1153b38e6cd0e8dcd774e5e56b",
     "ini": "Ahnenblatt5.ini"
   }
 }
