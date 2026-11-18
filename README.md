@@ -166,6 +166,19 @@ Varianten bei Pull Requests und Pushes nach `main` oder `release/**`. Veröffent
 nötig. Das Versionsmanifest muss vorher gelockt und eingecheckt sein. Das
 GHCR-Paket kann anschließend in GitHub nach Wunsch öffentlich geschaltet werden.
 
+## Wine-Socketfehler beim Start
+
+`wine: socket : Function not implemented` tritt unter anderem mit Docker Engine
+29.4.2 auf: Dessen Seccomp-Profil blockiert `socketcall`, das Wine benötigt.
+Die CI verwendet deshalb explizit Engine 29.4.3 und protokolliert die
+Docker-Version. Lokal die Serverversion mit `docker version` prüfen und bei
+29.4.2 auf 29.4.3 oder neuer aktualisieren; danach den Container neu erstellen.
+Die Standard-Sicherheitsprofile bleiben aktiv.
+Siehe [Docker: Ursache und Korrektur](https://www.docker.com/blog/mitigating-cve-2026-31431-copy-fail-in-docker-engine/).
+Falls der Fehler mit korrigierter Engine weiter auftritt, werden die tatsächliche
+Serverversion und Angaben zu eigenen Seccomp-Profilen bzw. der Container-Runtime
+für die weitere Diagnose benötigt. Vorhandene Wine-Profile nicht löschen.
+
 ## Tests und Updates
 
 `make check` prüft Shell-, Python- und XML-Syntax, führt bei installiertem
