@@ -81,6 +81,11 @@ Hash **vor** dem Ausführen des Installers und zusätzlich die installierte EXE.
 2. Eine separate Build-Stufe initialisiert ein temporäres Wine-Prefix unter
    Xvfb und führt den Standard-Installer unbeaufsichtigt aus. Tahoma und Ubuntu
    Font Family werden wie beim bisherigen Container über Winetricks installiert.
+   Der 2.99-Installer startet auch im stillen Modus die Anwendung. Nach
+   erfolgreichem Installer-Ende werden deshalb die Wine-Prozesse ausschließlich
+   im temporären Build-Prefix beendet, bevor auf dessen Shutdown gewartet wird.
+   Jeder Schritt protokolliert seinen Namen, seine Dauer und mögliche Timeouts;
+   bei Fehlern werden die letzten Zeilen des Installerlogs ausgegeben.
 3. Nur das Anwendungsverzeichnis, diese zusätzlichen Schriftarten und
    Versionsmetadaten werden ins finale Image kopiert. Installer, Build-Prefix,
    Build-Registry und Winetricks bleiben in der Build-Stufe.

@@ -5,6 +5,7 @@
 !scripts/
 !scripts/versions.py
 !scripts/install-build.sh
+!scripts/build-steps.sh
 !versions/
 !versions/versions.json
 **/__pycache__
