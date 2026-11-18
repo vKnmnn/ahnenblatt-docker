@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 -include .env
-SERIES ?= 4
+SERIES ?= 5
 IMAGE ?= ghcr.io/vknmnn/ahnenblatt-docker
 BASE_IMAGE ?= ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble
 SOURCE_URL ?= https://github.com/vKnmnn/ahnenblatt-docker

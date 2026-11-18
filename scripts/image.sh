@@ -2,7 +2,7 @@
 set -euo pipefail
 action=${1:?build or publish required}
 case "$action" in build|publish) ;; *) exit 2 ;; esac
-series=${SERIES:-4}
+series=${SERIES:-5}
 image=${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}
 base=${BASE_IMAGE:-ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble}
 version=$(python3 scripts/versions.py get "$series" version)
