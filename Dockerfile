@@ -21,12 +21,12 @@ RUN apt-get update \
 COPY versions/ /build/versions/
 COPY scripts/versions.py /build/scripts/versions.py
 COPY scripts/install-build.sh /build/scripts/install-build.sh
-ARG SERIES=4
+ARG SERIES=3
 RUN python3 /build/scripts/versions.py fetch "${SERIES}" /tmp/ahnenblatt-setup.exe \
  && xvfb-run -a bash /build/scripts/install-build.sh "${SERIES}"
 
 FROM runtime AS final
-ARG SERIES=4
+ARG SERIES=3
 ARG VERSION
 ARG SOURCE_URL
 ARG REVISION=unknown
