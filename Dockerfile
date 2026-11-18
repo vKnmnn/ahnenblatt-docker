@@ -1,17 +1,18 @@
 # syntax=docker/dockerfile:1
-ARG BASE_IMAGE=ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble
+ARG BASE_IMAGE=ghcr.io/linuxserver/baseimage-selkies:debiantrixie
 FROM ${BASE_IMAGE} AS runtime
 USER root
 # Older releases and the installers require 32-bit Wine as well.
 RUN dpkg --add-architecture i386 \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      wine wine64 wine32:i386 fonts-dejavu-core fonts-liberation \
+      wine wine64 wine32:i386 fonts-dejavu-core fonts-liberation fonts-noto-core \
       fontconfig tint2 python3 python3-xdg util-linux xdotool ca-certificates \
  && rm -rf /var/lib/apt/lists/*
-ENV LANG=de_DE.UTF-8 LANGUAGE=de_DE:de LC_ALL=de_DE.UTF-8 \
+ENV LC_ALL=de_DE.UTF-8 \
     TZ=Europe/Berlin WINEDEBUG=-all WINEDLLOVERRIDES=mscoree= \
-    FM_HOME=/config/files TITLE=Ahnenblatt
+    FILE_MANAGER_PATH=/config/files TITLE=Ahnenblatt \
+    PIXELFLUX_WAYLAND=false LSIO_FIRST_PARTY=false
 
 FROM runtime AS installer
 RUN apt-get update \
@@ -31,7 +32,9 @@ ARG SERIES=2.99
 ARG VERSION
 ARG SOURCE_URL
 ARG REVISION=unknown
-LABEL org.opencontainers.image.title="Ahnenblatt with Wine and KasmVNC" \
+LABEL maintainer="vKnmnn" \
+      build_version="Ahnenblatt ${VERSION} (${REVISION})" \
+      org.opencontainers.image.title="Ahnenblatt with Wine and Selkies" \
       org.opencontainers.image.description="Standard installation; personal Wine prefix created at first start" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.source="${SOURCE_URL}" \

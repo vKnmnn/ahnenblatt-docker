@@ -1,4 +1,6 @@
 
-Ahnenblatt · Wine · KasmVNC
-Standard installation with a persistent personal Wine profile
+Ahnenblatt Docker · Wine · Selkies
+An independent image maintained by vKnmnn, based on LinuxServer.io base images.
+Not an official LinuxServer.io or Ahnenblatt image.
+Support: https://github.com/vKnmnn/ahnenblatt-docker/issues
 

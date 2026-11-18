@@ -3,7 +3,7 @@ SHELL := /bin/bash
 -include .env
 SERIES ?= 2.99
 IMAGE ?= ghcr.io/vknmnn/ahnenblatt-docker
-BASE_IMAGE ?= ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble
+BASE_IMAGE ?= ghcr.io/linuxserver/baseimage-selkies:debiantrixie
 SOURCE_URL ?= https://github.com/vKnmnn/ahnenblatt-docker
 REVISION ?= unknown
 CONFIG_DIR ?= ./data/$(SERIES)
