@@ -21,6 +21,7 @@ RUN apt-get update \
 COPY versions/ /build/versions/
 COPY scripts/versions.py /build/scripts/versions.py
 COPY scripts/install-build.sh /build/scripts/install-build.sh
+COPY scripts/build-steps.sh /build/scripts/build-steps.sh
 ARG SERIES=2.99
 RUN python3 /build/scripts/versions.py fetch "${SERIES}" /tmp/ahnenblatt-setup.exe \
  && xvfb-run -a bash /build/scripts/install-build.sh "${SERIES}"

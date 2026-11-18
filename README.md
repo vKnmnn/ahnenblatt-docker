@@ -36,10 +36,10 @@ dem Reboot nach einem Kernelupgrade wieder verfügbar ist. Insbesondere sind
 der Start aus den extrahierten Programmdateien, die Einstellungen der älteren
 Versionen und die Freischaltung noch nicht funktional bestätigt.
 
-Die Installer-Prüfsummen in `versions/versions.json` sind zunächst `null`:
-Downloads waren in der Entwicklungsumgebung wegen fehlender DNS-Auflösung
-nicht möglich. Sie werden mit `make lock-all` ermittelt; es sind keine
-erfundenen oder ungeprüften Hashes hinterlegt. Ein Build ohne Lock bricht ab.
+Die Installer-Prüfsummen in `versions/versions.json` sind für alle vier
+Versionen hinterlegt. Die offiziellen Downloads wurden anhand ihrer
+PE-Versionsangaben geprüft und mit SHA-256 gesperrt. Ein Build ohne Lock
+oder mit verändertem Installer bricht ab.
 
 ## Nach dem Reboot
 
@@ -81,6 +81,11 @@ Hash **vor** dem Ausführen des Installers und zusätzlich die installierte EXE.
 2. Eine separate Build-Stufe initialisiert ein temporäres Wine-Prefix unter
    Xvfb und führt den Standard-Installer unbeaufsichtigt aus. Tahoma und Ubuntu
    Font Family werden wie beim bisherigen Container über Winetricks installiert.
+   Der 2.99-Installer startet auch im stillen Modus die Anwendung. Nach
+   erfolgreichem Installer-Ende werden deshalb die Wine-Prozesse ausschließlich
+   im temporären Build-Prefix beendet, bevor auf dessen Shutdown gewartet wird.
+   Jeder Schritt protokolliert seinen Namen, seine Dauer und mögliche Timeouts;
+   bei Fehlern werden die letzten Zeilen des Installerlogs ausgegeben.
 3. Nur das Anwendungsverzeichnis, diese zusätzlichen Schriftarten und
    Versionsmetadaten werden ins finale Image kopiert. Installer, Build-Prefix,
    Build-Registry und Winetricks bleiben in der Build-Stufe.
