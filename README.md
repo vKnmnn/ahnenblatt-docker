@@ -36,10 +36,10 @@ dem Reboot nach einem Kernelupgrade wieder verfügbar ist. Insbesondere sind
 der Start aus den extrahierten Programmdateien, die Einstellungen der älteren
 Versionen und die Freischaltung noch nicht funktional bestätigt.
 
-Die Installer-Prüfsummen in `versions/versions.json` sind zunächst `null`:
-Downloads waren in der Entwicklungsumgebung wegen fehlender DNS-Auflösung
-nicht möglich. Sie werden mit `make lock-all` ermittelt; es sind keine
-erfundenen oder ungeprüften Hashes hinterlegt. Ein Build ohne Lock bricht ab.
+Die Installer-Prüfsummen in `versions/versions.json` sind für alle vier
+Versionen hinterlegt. Die offiziellen Downloads wurden anhand ihrer
+PE-Versionsangaben geprüft und mit SHA-256 gesperrt. Ein Build ohne Lock
+oder mit verändertem Installer bricht ab.
 
 ## Nach dem Reboot
 
