@@ -37,9 +37,11 @@ def check_version(path, expected):
     )
     tags = json.loads(result.stdout)[0]
     # Numeric PE fields may omit the patch letter (e.g. 2.99p).
-    numeric = re.match(r"[0-9]+\.[0-9]+", expected)[0]
+    numeric = tuple(int(part) for part in re.match(r"[0-9]+\.[0-9]+", expected)[0].split('.'))
     values = [str(tags.get(k, "")) for k in ("ProductVersion", "FileVersion")]
-    if not any(re.search(r"(?<![\d.])" + re.escape(numeric) + r"(?!\d)", v) for v in values):
+    # PE version components are integers: marketing version 5.02 is stored as 5.2.
+    matches = [re.search(r"(?<![\d.])(\d+)\.(\d+)(?!\d)", value) for value in values]
+    if not any(match and tuple(map(int, match.groups())) == numeric for match in matches):
         raise ValueError(f"Expected {expected}, PE version fields are {values}")
     print(f"PE version: {values}; expected {expected}")
 

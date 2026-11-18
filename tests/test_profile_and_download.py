@@ -84,3 +84,12 @@ class DownloadTests(unittest.TestCase):
         with patch.object(versions.subprocess, 'run', return_value=response):
             with self.assertRaisesRegex(ValueError, 'Expected 4.55'):
                 versions.check_version(Path('setup.exe'), '4.55')
+
+    def test_pe_version_without_leading_zero_matches_marketing_version(self):
+        response = type('Result', (), {'stdout': json.dumps([{
+            'ProductVersion': '5.2.0.1', 'FileVersion': 'Version 5.2.0.1 (64-bit)',
+        }])})()
+        with patch.object(versions.subprocess, 'run', return_value=response):
+            versions.check_version(Path('setup.exe'), '5.02')
+            with self.assertRaisesRegex(ValueError, 'Expected 5.03'):
+                versions.check_version(Path('setup.exe'), '5.03')
