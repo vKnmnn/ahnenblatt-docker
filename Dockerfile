@@ -7,7 +7,7 @@ RUN dpkg --add-architecture i386 \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       wine wine64 wine32:i386 fonts-dejavu-core fonts-liberation \
-      fontconfig tint2 python3 util-linux xdotool ca-certificates \
+      fontconfig tint2 python3 python3-xdg util-linux xdotool ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 ENV LANG=de_DE.UTF-8 LANGUAGE=de_DE:de LC_ALL=de_DE.UTF-8 \
     TZ=Europe/Berlin WINEDEBUG=-all WINEDLLOVERRIDES=mscoree= \
