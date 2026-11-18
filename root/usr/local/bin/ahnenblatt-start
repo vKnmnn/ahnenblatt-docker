@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export DISPLAY=${DISPLAY:-:1}
+export WINEARCH=win64 WINEDEBUG=${WINEDEBUG:--all}
+export WINEDLLOVERRIDES='mscoree=;winemenubuilder.exe=d'
+series=$(python3 -c 'import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])')
+exe=$(python3 -c 'import json; print(json.load(open("/opt/ahnenblatt-image.json"))["exe"])')
+export WINEPREFIX="/config/versions/$series/wineprefix"
+mkdir -p "/config/versions/$series" /config/files/{Ahnenblatt,Bilder,Ausgaben}
+mkdir -p /config/.config/tint2
+if [[ ! -f /config/.config/tint2/tint2rc ]]; then
+    cp /defaults/tint2/tint2rc /config/.config/tint2/tint2rc
+fi
+exec 9>"/config/versions/$series/.lock"
+if ! flock -n 9; then
+    echo "[ahnenblatt] Another container is using this version's profile" >&2
+    exit 1
+fi
+
+display_number=${DISPLAY#:}
+display_number=${display_number%%.*}
+socket="/tmp/.X11-unix/X$display_number"
+for ((i=0; i<120; i++)); do
+    [[ -S "$socket" ]] && break
+    sleep 1
+done
+if [[ ! -S "$socket" ]]; then
+    echo "[ahnenblatt] X server unavailable: $DISPLAY" >&2
+    exit 1
+fi
+
+if [[ ! -f "$WINEPREFIX/.initialized-v1" ]]; then
+    echo "[ahnenblatt] Initializing personal Wine profile for series $series"
+    # Do not pass the profile lock descriptor to Wine's background processes.
+    timeout 180 wineboot -u 9>&-
+    timeout 180 wineserver -w 9>&-
+    python3 /usr/local/lib/ahnenblatt/prepare-profile.py
+    wine regedit /S /antialiasing.reg 9>&-
+    wine regedit /S /fontsmoothing.reg 9>&-
+    timeout 180 wineserver -w 9>&-
+    touch "$WINEPREFIX/.initialized-v1"
+fi
+
+if [[ ! -f "$WINEPREFIX/drive_c/AhnenblattApp/$exe" ]]; then
+    echo "[ahnenblatt] Application link missing; check $WINEPREFIX/drive_c/AhnenblattApp" >&2
+    exit 1
+fi
+cd /config/files
+echo "[ahnenblatt] Starting $exe (series $series)"
+wine "C:\\AhnenblattApp\\$exe" 9>&- &
+app_pid=$!
+shutdown() {
+    trap - TERM INT
+    wineserver -k 9>&- || true
+    wait "$app_pid" || true
+    exit 0
+}
+trap shutdown TERM INT
+wait "$app_pid"

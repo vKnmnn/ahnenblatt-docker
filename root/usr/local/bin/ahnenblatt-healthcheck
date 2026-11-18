@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# A visible application window is stronger evidence than a running wineserver.
+if [[ $(id -u) == 0 ]]; then
+    exec s6-setuidgid abc env DISPLAY="${DISPLAY:-:1}" \
+        xdotool search --onlyvisible --class '([Aa]hnenblatt|[Aa]hnblatt).*\.exe'
+fi
+exec xdotool search --onlyvisible --class '([Aa]hnenblatt|[Aa]hnblatt).*\.exe'

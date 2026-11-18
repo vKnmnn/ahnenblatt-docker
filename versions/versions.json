@@ -1,0 +1,26 @@
+{
+  "2.99": {
+    "version": "2.99p",
+    "url": "https://www.ahnenblatt.de/downloads/absetup.exe",
+    "sha256": null,
+    "ini": "Ahnenblatt.ini"
+  },
+  "3": {
+    "version": "3.60",
+    "url": "https://www.ahnenblatt.de/downloads/absetup3.exe",
+    "sha256": null,
+    "ini": "Ahnenblatt3.ini"
+  },
+  "4": {
+    "version": "4.55",
+    "url": "https://www.ahnenblatt.de/downloads/absetup4.x64.exe",
+    "sha256": null,
+    "ini": "Ahnenblatt4.ini"
+  },
+  "5": {
+    "version": "5.02",
+    "url": "https://www.ahnenblatt.de/downloads/absetup5.x64.exe",
+    "sha256": null,
+    "ini": "Ahnenblatt5.ini"
+  }
+}

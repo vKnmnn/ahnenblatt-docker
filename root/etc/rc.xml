@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_config xmlns="http://openbox.org/3.4/rc">
+	<applications>
+		<application class="ahnenblatt*.exe">
+			<decor>no</decor>
+		</application>
+		<application class="ahnblatt.exe">
+			<decor>no</decor>
+		</application>
+		<application type="dialog">
+			<layer>above</layer>
+		</application>
+	</applications>
+	<desktops>
+		<number>1</number>
+		<firstdesk>1</firstdesk>
+		<popupTime>1000</popupTime>
+		<names>
+			<name>Ahnenblatt</name>
+		</names>
+	</desktops>
+<focus>
+    <focusNew>yes</focusNew>
+    <followMouse>no</followMouse>
+    <focusLast>yes</focusLast>
+    <underMouse>no</underMouse>
+    <focusDelay>200</focusDelay>
+    <raiseOnFocus>yes</raiseOnFocus>
+  </focus>
+  <placement>
+    <policy>Smart</policy>
+    <center>yes</center>
+    <monitor>Primary</monitor>
+    <primaryMonitor>1</primaryMonitor>
+  </placement>
+</openbox_config>

@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!root/
+!root/**
+!scripts/
+!scripts/versions.py
+!scripts/install-build.sh
+!versions/
+!versions/versions.json
+**/__pycache__
+**/*.pyc

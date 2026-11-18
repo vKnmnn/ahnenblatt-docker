@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+mkdir -p /config/versions /config/files
+chown abc:abc /config/versions /config/files
+exec s6-setuidgid abc /usr/local/bin/ahnenblatt-start

@@ -1,0 +1,18 @@
+services:
+  ahnenblatt:
+    image: ${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}:${SERIES:-4}
+    platform: linux/amd64
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Europe/Berlin}
+      CUSTOM_USER: ${CUSTOM_USER:-abc}
+      PASSWORD: ${PASSWORD:-}
+      FM_HOME: /config/files
+    volumes:
+      - ${CONFIG_DIR:-./data/4}:/config
+    ports:
+      - "${HTTP_PORT:-3000}:3000"
+    shm_size: 1gb
+    restart: unless-stopped
+

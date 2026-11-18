@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+echo "[ahnenblatt] process exited with code $1 - restarting"
+exit 0
+

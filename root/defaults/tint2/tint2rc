@@ -1,0 +1,4 @@
+panel_position = top center horizontal
+panel_items = TC
+taskbar_always_show_all_desktop_tasks = 1
+task_maximum_size = 200 25
