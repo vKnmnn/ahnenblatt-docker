@@ -44,7 +44,8 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 | Variable | Bedeutung |
 | --- | --- |
 | `SERIES` | Ahnenblatt-Versionslinie, standardmäßig `4` |
-| `CONFIG_DIR` | Persistenter Datenordner |
+| `CONFIG_DIR` | Persistente Wine-Profile und Containereinstellungen |
+| `DATA_DIR` | Ahnenblatt-Datenordner auf dem Host; standardmäßig `CONFIG_DIR/files` |
 | `HTTPS_PORT` | HTTPS-Port der Weboberfläche, standardmäßig `3001` |
 | `HTTP_PORT` | HTTP-Port für einen Reverse-Proxy, standardmäßig `3000` |
 | `APP_LOCALE` | Wine-/Desktop-Locale, standardmäßig `en_US.UTF-8` |
@@ -67,20 +68,41 @@ wieder öffnen.
 
 ## Dateien und Einstellungen
 
-Das Verzeichnis `/config` enthält alle persistenten Daten:
+Der eigene Datenordner wird nach `/config/files` gemountet und erscheint in
+Ahnenblatt direkt als Laufwerk `D:`. In `.env` beispielsweise:
 
-```text
-/config/files/Ahnenblatt/              Ahnendateien
-/config/files/Bilder/                  Bilder
-/config/files/Ausgaben/                Exporte
-/config/versions/<Serie>/wineprefix/   Wine-Profil mit Einstellungen
+```dotenv
+CONFIG_DIR=./data/4
+DATA_DIR=/srv/genealogie
 ```
 
-Selkies bietet Datei-Uploads per Drag-and-drop oder Upload-Button sowie Downloads
-im Bereich „Files“. `FILE_MANAGER_PATH=/config/files` setzt den Transferordner,
-der in Wine als Laufwerk `D:` verfügbar ist. Hochgeladene Dateien in Ahnenblatt
-unter `D:` auswählen; für die dauerhafte Ablage stehen die Unterordner
-`Ahnenblatt`, `Bilder` und `Ausgaben` bereit.
+Die vorhandene Ordnerstruktur kann so bleiben:
+
+```text
+/srv/genealogie/
+├── Familie.ahn
+└── Familie Media/
+```
+
+Ein zusätzlicher Unterordner `Ahnenblatt` ist nicht erforderlich. Bereits
+vorhandene Unterordner bleiben nutzbar. Relative Verweise auf Medien bleiben
+beim gemeinsamen Mount der `.ahn`-Datei und ihrer Medienordner erhalten.
+
+Neue Profile verwenden `D:\` als Vorgabe für Ahnendateien und Suchbegriffe.
+Für Bilder wird bei deutscher Containersprache `D:\Bilder`, sonst
+`D:\Pictures` angelegt (Vorrang: `LC_ALL`, `LC_MESSAGES`, `LANG`). Eine
+Ausgabeordner-Vorgabe wird nicht gesetzt. Vorhandene INI-Einstellungen und
+Ordner werden nicht überschrieben, umbenannt oder gelöscht; bei bestehenden
+Profilen die gewünschten Pfade direkt in Ahnenblatt einstellen.
+
+Selkies verwendet denselben Datenordner für Uploads und Downloads. Ohne
+`DATA_DIR` bleibt der bisherige Speicherort unter `CONFIG_DIR/files` erhalten.
+Bei direktem `docker run` den Datenordner zusätzlich mit
+`-v /srv/genealogie:/config/files` einhängen. `PUID` und `PGID` müssen zum
+Schreibzugriff auf den eingehängten Ordner passen.
+
+Wine-Profile und Einstellungen liegen getrennt unter
+`/config/versions/<Serie>/wineprefix/`.
 
 Einstellungen und im Wine-Profil gespeicherte Freischaltdaten bleiben im
 Datenordner erhalten. Diesen Ordner regelmäßig sichern und bei Imageupdates
