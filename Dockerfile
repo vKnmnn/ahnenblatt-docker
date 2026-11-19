@@ -26,11 +26,11 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 COPY versions/ /build/versions/
 COPY scripts/versions.py /build/scripts/versions.py
+ARG SERIES=2.99
+RUN python3 /build/scripts/versions.py fetch "${SERIES}" /tmp/ahnenblatt-setup.exe
 COPY scripts/install-build.sh /build/scripts/install-build.sh
 COPY scripts/build-steps.sh /build/scripts/build-steps.sh
-ARG SERIES=2.99
-RUN python3 /build/scripts/versions.py fetch "${SERIES}" /tmp/ahnenblatt-setup.exe \
- && xvfb-run -a bash /build/scripts/install-build.sh "${SERIES}"
+RUN xvfb-run -a bash /build/scripts/install-build.sh "${SERIES}"
 
 FROM runtime AS final
 ARG SERIES=2.99
