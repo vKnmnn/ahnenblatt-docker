@@ -39,6 +39,23 @@ wait_for_window() {
     echo 'No visible Ahnenblatt window within 240 seconds' >&2
     return 1
 }
+progress 'runtime Wine packages'
+docker exec "$name" bash -c '
+    set -euo pipefail
+    dpkg-query -W -f="\${db:Status-Status}" wine64 | grep -qx installed
+    case "$AHNENBLATT_SERIES" in
+        4|5)
+            if dpkg --print-foreign-architectures | grep -qx i386; then
+                echo "Unexpected i386 runtime for series $AHNENBLATT_SERIES" >&2
+                exit 1
+            fi
+            ;;
+        2.99|3)
+            dpkg-query -W -f="\${db:Status-Status}" wine32:i386 | grep -qx installed
+            ;;
+        *) exit 1 ;;
+    esac
+'
 progress 'initial application window'
 wait_for_window
 progress 'desktop notice'
