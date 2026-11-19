@@ -23,23 +23,4 @@ case "$(wine --version)" in
     "wine-$major".*) ;;
     *) echo "Unexpected Wine version (expected $major)" >&2; exit 1 ;;
 esac
-# Keep prefix initialization independent of wrappers that prefer the 32-bit loader.
-# WineHQ may provide either a split wine64 loader or a unified 64-bit wine loader.
-python3 - "$major" <<'PY'
-from pathlib import Path
-import sys
-
-candidates = ([Path('/usr/lib/wine/wine64')] if sys.argv[1] == '10' else [
-    Path('/opt/wine-stable/bin/wine64'), Path('/opt/wine-stable/bin/wine'),
-])
-for loader in candidates:
-    if loader.is_file():
-        with loader.open('rb') as stream:
-            if stream.read(5) == b'\x7fELF\x02':
-                Path('/usr/local/bin/wine-native64').symlink_to(loader)
-                break
-else:
-    raise SystemExit('No native 64-bit Wine loader found')
-PY
-wine-native64 --version
 rm -rf /var/lib/apt/lists/*
