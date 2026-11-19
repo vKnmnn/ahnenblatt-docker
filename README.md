@@ -47,7 +47,7 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 | `CONFIG_DIR` | Persistenter Datenordner |
 | `HTTPS_PORT` | HTTPS-Port der Weboberfläche, standardmäßig `3001` |
 | `HTTP_PORT` | HTTP-Port für einen Reverse-Proxy, standardmäßig `3000` |
-| `APP_LOCALE` | Wine-/Desktop-Locale, standardmäßig `de_DE.UTF-8` |
+| `APP_LOCALE` | Wine-/Desktop-Locale, standardmäßig `en_US.UTF-8` |
 | `PUID`, `PGID` | Benutzer- und Gruppen-ID für Dateirechte |
 | `CUSTOM_USER`, `PASSWORD` | Optionale HTTP-Basisauthentifizierung |
 
@@ -55,6 +55,15 @@ Ohne `.env` verwendet `make up SERIES=3` den Datenordner `./data/3`.
 Bei einer eigenen `.env` den `CONFIG_DIR` passend zur Serie setzen.
 Mehrere Instanzen benötigen unterschiedliche Compose-Projektnamen, Ports und
 Datenordner.
+
+## Oberfläche
+
+Die Selkies-Seitenleiste konzentriert sich auf Bildschirm, Dateien und
+Zwischenablage; Audio, Mikrofon, Webcam und Gamepad sind standardmäßig deaktiviert.
+Das Ahnenblatt-Hauptfenster öffnet maximiert ohne zusätzliche Titelleiste,
+Dialoge werden zentriert. Ein Hinweis auf dem Desktop erklärt den automatischen
+Neustart nach dem Schließen. Minimierte Fenster lassen sich über die Taskleiste
+wieder öffnen.
 
 ## Dateien und Einstellungen
 
@@ -85,10 +94,12 @@ Die Sprache wird in Ahnenblatt unter **Extras → Sprache** gewählt und im
 persönlichen Profil gespeichert. Je nach Version unterscheiden sich die
 verfügbaren Übersetzungen; unvollständige Texte können auf Englisch erscheinen.
 
-`APP_LOCALE=de_DE.UTF-8` in `.env` legt die Wine-/Desktop-Umgebung fest, zum
-Beispiel `en_US.UTF-8` für Englisch. Sie ersetzt nicht die Sprachauswahl in
-Ahnenblatt und setzt bestehende Einstellungen nicht zurück. Noto-Schriftarten
-ergänzen die Zeichenabdeckung für verschiedene Schriftsysteme.
+Englisch ist die Standard-Locale. Mit `APP_LOCALE=de_DE.UTF-8` in `.env`
+setzt Compose `LANG=de_DE.UTF-8` im Container. Bei direktem `docker run` genügt
+`-e LANG=de_DE.UTF-8`. Der Desktop-Hinweis verwendet `LC_ALL`, `LC_MESSAGES`
+oder `LANG` (in dieser Reihenfolge): Deutsch für `de`, sonst Englisch.
+Die Locale ersetzt nicht die Sprachauswahl in Ahnenblatt und setzt bestehende
+Einstellungen nicht zurück. Noto-Schriftarten ergänzen die Zeichenabdeckung.
 
 ## Selbst bauen und testen
 

@@ -9,7 +9,7 @@ services:
       CUSTOM_USER: ${CUSTOM_USER:-abc}
       PASSWORD: ${PASSWORD:-}
       FILE_MANAGER_PATH: /config/files
-      LC_ALL: ${APP_LOCALE:-de_DE.UTF-8}
+      LANG: ${APP_LOCALE:-en_US.UTF-8}
     volumes:
       - ${CONFIG_DIR:-./data/3}:/config
     ports:
