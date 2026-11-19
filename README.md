@@ -121,7 +121,10 @@ es `make build-all` und `make smoke-all`.
 Der Build installiert Ahnenblatt in einem temporären Wine-Profil. Nur
 Programmdateien, zusätzliche Schriftarten und Versionsmetadaten gelangen ins
 finale Image. Das persönliche Wine-Profil wird beim ersten Containerstart erzeugt.
-Anwendungsupdates erfolgen über neue Images.
+Anwendungsupdates erfolgen über neue Images. Version 4/5 enthalten nur die
+64-Bit-Wine-Laufzeit. Version 2.99/3 behalten beide Wine-Architekturen für ihre
+32-Bit-Anwendung und bestehende 64-Bit-Profile. Die separate Installationsstufe
+verwendet für alle Versionen beide Architekturen.
 
 Installer-Versionen und SHA-256-Prüfsummen stehen in `versions/versions.json`.
 Für ein Update Version und URL anpassen, `sha256` auf `null` setzen und
