@@ -48,8 +48,7 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 | `DATA_DIR` | Ahnenblatt-Datenordner auf dem Host; standardmäßig `CONFIG_DIR/files` |
 | `HTTPS_PORT` | HTTPS-Port der Weboberfläche, standardmäßig `3001` |
 | `HTTP_PORT` | HTTP-Port für einen Reverse-Proxy, standardmäßig `3000` |
-| `DATE_FORMAT` | Optionales Windows-Datumsformat, z. B. `dd.MM.yyyy`; leer lässt es unverändert |
-| `APP_LOCALE` | Wine-/Desktop-Locale, standardmäßig `en_US.UTF-8` |
+| `APP_LOCALE` | Gesamte Container-Locale: Sprache, Datums- und Zahlenformate; Standard `en_US.UTF-8` |
 | `PUID`, `PGID` | Benutzer- und Gruppen-ID für Dateirechte |
 | `CUSTOM_USER`, `PASSWORD` | Optionale HTTP-Basisauthentifizierung |
 
@@ -116,34 +115,36 @@ Die Sprache wird in Ahnenblatt unter **Extras → Sprache** gewählt und im
 persönlichen Profil gespeichert. Je nach Version unterscheiden sich die
 verfügbaren Übersetzungen; unvollständige Texte können auf Englisch erscheinen.
 
-Englisch ist die Standard-Locale. Mit `APP_LOCALE=de_DE.UTF-8` in `.env`
-setzt Compose `LANG=de_DE.UTF-8` im Container. Bei direktem `docker run` genügt
-`-e LANG=de_DE.UTF-8`. Der Desktop-Hinweis verwendet `LC_ALL`, `LC_MESSAGES`
-oder `LANG` (in dieser Reihenfolge): Deutsch für `de`, sonst Englisch.
-Die Locale ersetzt nicht die Sprachauswahl in Ahnenblatt und setzt bestehende
-Einstellungen nicht zurück. Noto-Schriftarten ergänzen die Zeichenabdeckung.
-
-## Datumsformat
-
-Das Windows-Datumsformat lässt sich unabhängig von der Oberflächensprache in
-`.env` setzen:
+`APP_LOCALE` setzt die gesamte System-Locale des Containers über `LC_ALL` und
+`LANG`, einschließlich Sprache, Datums- und Zahlenformaten. Die LSIO-Basis setzt
+passend dazu auch `LANGUAGE`. Standard ist `en_US.UTF-8`; für Deutsch in `.env`:
 
 ```dotenv
-DATE_FORMAT=dd.MM.yyyy
+APP_LOCALE=de_DE.UTF-8
 ```
 
-Unterstützt werden numerische Formate in der Reihenfolge Tag–Monat–Jahr,
-Monat–Tag–Jahr oder Jahr–Monat–Tag, mit Punkt, Schrägstrich oder Bindestrich,
-z. B. `dd.MM.yyyy`, `MM/dd/yyyy`, `dd/MM/yyyy` und `yyyy-MM-dd`.
-Die Schreibweise verwendet `d` für Tag, `M` für Monat und `yy`/`yyyy` für Jahr.
-Bei `docker run` entspricht dies `-e DATE_FORMAT=dd.MM.yyyy`.
+Wine übernimmt die regionalen Systemvorgaben. Eine separate Datumsformat-Variable
+gibt es nicht. In Ahnenblatt bereits gespeicherte Anwendungs- und Dateieinstellungen
+bleiben bestehen; Ahnendateien werden nicht umformatiert. Der Desktop-Hinweis und
+neue Datenordner verwenden Deutsch für `de`, sonst Englisch.
 
-Nach einer Änderung den Container mit `docker compose up -d` neu erstellen.
-Die Vorgabe wird vor jedem Ahnenblatt-Start auch auf bestehende Wine-Profile
-angewendet. Ohne Vorgabe bleibt das gespeicherte Windows-Format erhalten;
-das Entfernen der Variable setzt einen zuvor gesetzten Wert nicht zurück.
-Das Format sollte dem unter **Datei → Eigenschaften → Datumsformat** in der
-Ahnendatei gespeicherten Format entsprechen. Die Datei selbst wird nicht verändert.
+Nach Änderungen an `.env` den Container mit `docker compose up -d` neu erstellen.
+Bei direktem `docker run` die Locale mit `-e LC_ALL=de_DE.UTF-8` setzen.
+
+## Zeitzone
+
+Die Zeitzone wird unabhängig von der Sprache mit `TZ=Europe/Berlin` gewählt.
+Alternativ kann unter Linux die Zeitzone des Hosts verwendet werden: den
+kommentierten Mount in `docker-compose.yml` aktivieren und in `.env`
+`TZ=:/etc/localtime` setzen:
+
+```yaml
+volumes:
+  - /etc/localtime:/etc/localtime:ro
+```
+
+Bei `docker run` entsprechen dem die Optionen
+`-v /etc/localtime:/etc/localtime:ro -e TZ=:/etc/localtime`.
 
 ## Selbst bauen und testen
 
