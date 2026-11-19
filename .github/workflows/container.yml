@@ -42,9 +42,11 @@ jobs:
       - name: Image metadata
         env:
           REPOSITORY: ${{ github.repository }}
+          SERIES: ${{ matrix.series }}
         run: |
           echo "IMAGE=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_ENV"
           echo "SOURCE_URL=https://github.com/$REPOSITORY" >> "$GITHUB_ENV"
+          echo "VERSION=$(python3 scripts/versions.py get "$SERIES" version)" >> "$GITHUB_ENV"
       - name: Log in to GHCR
         if: github.event_name == 'workflow_dispatch' && inputs.publish
         uses: docker/login-action@v4
@@ -52,15 +54,31 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and test (publish only when explicitly requested)
+      - name: Build image with GitHub Actions cache
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          push: false
+          build-args: |
+            SERIES=${{ matrix.series }}
+            VERSION=${{ env.VERSION }}
+            SOURCE_URL=${{ env.SOURCE_URL }}
+            REVISION=${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE }}:${{ matrix.series }}
+            ${{ env.IMAGE }}:${{ env.VERSION }}
+          cache-from: type=gha,version=2,scope=ahnenblatt-${{ matrix.series }}
+          cache-to: type=gha,version=2,scope=ahnenblatt-${{ matrix.series }},mode=max,ignore-error=true
+      - name: Smoke test
         env:
           SERIES: ${{ matrix.series }}
-          REVISION: ${{ github.sha }}
-          PUBLISH: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        run: make smoke
+      - name: Publish tested image
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          SERIES: ${{ matrix.series }}
         run: |
-          if [[ "$PUBLISH" == true ]]; then
-            make push
-          else
-            make build
-            make smoke
-          fi
+          docker push "$IMAGE:$VERSION"
+          docker push "$IMAGE:$SERIES"

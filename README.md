@@ -163,3 +163,7 @@ LinuxServer.io- oder Ahnenblatt-Image. Support und Fehlerberichte gehören in di
 Das Startbanner folgt den [LSIO-Branding-Vorgaben](https://docs.linuxserver.io/general/container-branding/).
 
 Ahnenblatt und die enthaltenen Schriftarten behalten ihre jeweiligen Herstellerlizenzen.
+
+GitHub Actions speichert Build-Schichten je Serie im Cache, einschließlich des
+verifizierten Installer-Downloads und der Installation. Bei unveränderten Eingaben
+werden sie wiederverwendet; Installer gehören nicht ins Git-Repository.
