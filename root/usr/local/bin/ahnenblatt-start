@@ -6,7 +6,7 @@ export WINEDLLOVERRIDES='mscoree=;winemenubuilder.exe=d'
 series=$(python3 -c 'import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])')
 exe=$(python3 -c 'import json; print(json.load(open("/opt/ahnenblatt-image.json"))["exe"])')
 export WINEPREFIX="/config/versions/$series/wineprefix"
-mkdir -p "/config/versions/$series" /config/files/{Ahnenblatt,Bilder,Ausgaben}
+mkdir -p "/config/versions/$series" /config/files
 mkdir -p /config/.config/tint2
 if [[ ! -f /config/.config/tint2/tint2rc ]]; then
     cp /defaults/tint2/tint2rc /config/.config/tint2/tint2rc
