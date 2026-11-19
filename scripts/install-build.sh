@@ -3,6 +3,8 @@ set -euo pipefail
 series=${1:?series required}
 export HOME=/tmp/build-home WINEPREFIX=/tmp/build-prefix WINEARCH=win64
 export WINEDEBUG=-all WINEDLLOVERRIDES='mscoree=;winemenubuilder.exe=d'
+# Wine 11 uses the unified loader; older winetricks may still look for wine64.
+if [[ ${AHNENBLATT_WINE_VERSION:-10} == 11 ]]; then export WINE64=wine; fi
 # shellcheck source=scripts/build-steps.sh
 source "$(dirname "${BASH_SOURCE[0]}")/build-steps.sh"
 mkdir -p "$HOME" "$WINEPREFIX" /build-output/app /build-output/fonts

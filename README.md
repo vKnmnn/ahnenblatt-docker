@@ -16,8 +16,18 @@ Beim Veröffentlichen werden folgende Tags erzeugt:
 | `4`, `4.55` | Version 4.55, Demo mit optionaler Freischaltung |
 | `5`, `5.02` | Version 5.02, Demo mit optionaler Freischaltung |
 
-Die kurzen Tags verfolgen die jeweilige Versionslinie. Es gibt keinen
-`latest`-Tag. Für die Freischaltung ist eine passende Ahnenblatt-Lizenz nötig.
+Die bisherigen Tags verwenden weiterhin Wine 10, jetzt wieder mit vollständiger
+32-/64-Bit-Unterstützung. Zusätzlich gibt es explizite Varianten:
+
+| Beispiel | Bedeutung |
+| --- | --- |
+| `5`, `5.02`, `5-wine10`, `5.02-wine10` | Ahnenblatt 5 mit Wine 10 |
+| `5-wine11`, `5.02-wine11` | Ahnenblatt 5 mit Wine 11 |
+| `latest` | Alias für die empfohlene Variante: Ahnenblatt 5 mit Wine 10 |
+
+Die Suffixe `-wine10` und `-wine11` sind für alle vier Serien verfügbar.
+`latest` wird ausdrücklich nach bestandenem Smoke-Test veröffentlicht; es ist
+kein automatisch ausgewähltes Image. Die kurzen Tags verfolgen ihre Versionslinie. Für die Freischaltung ist eine passende Ahnenblatt-Lizenz nötig.
 
 ## Starten
 
@@ -43,6 +53,7 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 
 | Variable | Bedeutung |
 | --- | --- |
+| `WINE_VERSION` | Wine-Hauptversion `10` (Standard) oder `11` |
 | `SERIES` | Ahnenblatt-Versionslinie, standardmäßig `4` |
 | `CONFIG_DIR` | Persistente Wine-Profile und Containereinstellungen |
 | `DATA_DIR` | Ahnenblatt-Datenordner auf dem Host; standardmäßig `CONFIG_DIR/files` |
@@ -166,10 +177,18 @@ es `make build-all` und `make smoke-all`.
 Der Build installiert Ahnenblatt in einem temporären Wine-Profil. Nur
 Programmdateien, zusätzliche Schriftarten und Versionsmetadaten gelangen ins
 finale Image. Das persönliche Wine-Profil wird beim ersten Containerstart erzeugt.
-Anwendungsupdates erfolgen über neue Images. Version 4/5 enthalten nur die
-64-Bit-Wine-Laufzeit. Version 2.99/3 behalten beide Wine-Architekturen für ihre
-32-Bit-Anwendung und bestehende 64-Bit-Profile. Die separate Installationsstufe
-verwendet für alle Versionen beide Architekturen.
+Anwendungsupdates erfolgen über neue Images. Beide Wine-Varianten enthalten
+32- und 64-Bit-Komponenten, auch für die Initialisierung der Wine-Profile.
+Wine 10 stammt aus Debian Trixie, Wine 11.0 aus dem offiziellen WineHQ-Repository.
+Die WineHQ-Trixie-Pakete verwenden ebenfalls einen 32-Bit-Linux-Unterbau.
+
+Für Wine 11 beispielsweise `make build SERIES=5 WINE_VERSION=11` und
+`make smoke SERIES=5 WINE_VERSION=11` verwenden. `build-all`, `smoke-all` und
+`push-all` verarbeiten jeweils alle vier Serien der gewählten `WINE_VERSION`.
+Beim Testen von Wine 11 einen separaten `CONFIG_DIR`, z. B. `./data/5-wine11`,
+verwenden. Ein von neuerem Wine aktualisiertes Profil sollte nicht ungeprüft
+mit älterem Wine weiterverwendet werden; Datenordner und Profile nicht gleichzeitig
+in mehreren laufenden Instanzen bearbeiten.
 
 Installer-Versionen und SHA-256-Prüfsummen stehen in `versions/versions.json`.
 Für ein Update Version und URL anpassen, `sha256` auf `null` setzen und
@@ -179,7 +198,7 @@ einchecken und die betreffende Variante bauen und testen.
 ## Auf GHCR veröffentlichen
 
 In GitHub **Actions → Container → Run workflow** öffnen und `publish` aktivieren.
-Der Workflow baut und testet alle vier Varianten und veröffentlicht sie mit dem
+Der Workflow baut und testet alle acht Kombinationen und veröffentlicht sie mit dem
 `GITHUB_TOKEN`. Das Paket kann anschließend in den GitHub-Paketeinstellungen
 öffentlich geschaltet werden.
 
