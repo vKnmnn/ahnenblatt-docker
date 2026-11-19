@@ -9,11 +9,13 @@ services:
       CUSTOM_USER: ${CUSTOM_USER:-abc}
       PASSWORD: ${PASSWORD:-}
       FILE_MANAGER_PATH: /config/files
+      LC_ALL: ${APP_LOCALE:-en_US.UTF-8}
       LANG: ${APP_LOCALE:-en_US.UTF-8}
-      DATE_FORMAT: ${DATE_FORMAT:-}
     volumes:
       - ${CONFIG_DIR:-./data/3}:/config
       - ${DATA_DIR:-${CONFIG_DIR:-./data/3}/files}:/config/files
+      # Optional host timezone; also set TZ=:/etc/localtime in .env.
+      # - /etc/localtime:/etc/localtime:ro
     ports:
       - "${HTTP_PORT:-3000}:3000"
       - "${HTTPS_PORT:-3001}:3001"
