@@ -15,15 +15,19 @@ def prepare(prefix, metadata, app=Path('/opt/ahnenblatt'), files=Path('/config/f
         link.symlink_to(target, target_is_directory=True)
     settings = prefix / 'drive_c/users/abc/AppData/Roaming/Ahnenblatt' / metadata['ini']
     if not settings.exists():
+        locale = (os.environ.get('LC_ALL') or os.environ.get('LC_MESSAGES')
+                  or os.environ.get('LANG') or 'en_US.UTF-8')
+        language = locale.lower().split('_')[0].split('-')[0].split('.')[0]
+        pictures = 'Bilder' if language == 'de' else 'Pictures'
+        (files / pictures).mkdir(parents=True, exist_ok=True)
         settings.parent.mkdir(parents=True, exist_ok=True)
         # Standard installations use AppData, rather than portable settings
         # alongside the executable. The image application directory stays immutable.
         settings.write_text(
             '[Dateien]\r\n'
-            'Familien=D:\\Ahnenblatt\r\n'
-            'Suchbegriffe=D:\\Ahnenblatt\r\n'
-            'Ausgaben=D:\\Ausgaben\r\n'
-            'Bilder=D:\\Bilder\r\n'
+            'Familien=D:\\\r\n'
+            'Suchbegriffe=D:\\\r\n'
+            f'Bilder=D:\\{pictures}\r\n'
             'UseAhnfileDir=0\r\n', encoding='utf-16', newline='',
         )
 

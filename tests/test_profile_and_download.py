@@ -28,14 +28,41 @@ class ProfileTests(unittest.TestCase):
             (prefix / 'drive_c').mkdir()
             (prefix / 'dosdevices').mkdir()
             item = {'ini': 'Ahnenblatt4.ini'}
-            profile.prepare(prefix, item)
+            profile.prepare(prefix, item, files=prefix / 'data')
             ini = prefix / 'drive_c/users/abc/AppData/Roaming/Ahnenblatt/Ahnenblatt4.ini'
-            self.assertIn('Familien=D:\\Ahnenblatt', ini.read_text(encoding='utf-16'))
+            self.assertIn('Familien=D:\\\n', ini.read_text(encoding='utf-16'))
             personal = 'personal settings and activation placeholder'.encode()
             ini.write_bytes(personal)
-            profile.prepare(prefix, item)
+            profile.prepare(prefix, item, files=prefix / 'data')
             self.assertEqual(ini.read_bytes(), personal)
-            self.assertEqual((prefix / 'dosdevices/d:').readlink(), Path('/config/files'))
+            self.assertEqual((prefix / 'dosdevices/d:').readlink(), prefix / 'data')
+
+    def test_mounted_data_and_localized_picture_defaults(self):
+        cases = [({}, 'Pictures'), ({'LANG': 'de_DE.UTF-8'}, 'Bilder'),
+                 ({'LANG': 'fr_FR.UTF-8'}, 'Pictures'),
+                 ({'LANG': 'de_DE.UTF-8', 'LC_MESSAGES': 'en_US.UTF-8'}, 'Pictures'),
+                 ({'LANG': 'en_US.UTF-8', 'LC_ALL': 'de_DE.UTF-8'}, 'Bilder')]
+        for environment, pictures in cases:
+            with self.subTest(environment=environment), tempfile.TemporaryDirectory() as directory:
+                prefix = Path(directory) / 'prefix'
+                (prefix / 'drive_c').mkdir(parents=True)
+                (prefix / 'dosdevices').mkdir()
+                data = Path(directory) / 'mounted-data'
+                media = data / 'Example Family Media'
+                media.mkdir(parents=True)
+                (media / 'photo.jpg').write_bytes(b'photo placeholder')
+                (data / 'family.ahn').write_bytes(b'genealogy placeholder')
+                with patch.dict(profile.os.environ, environment, clear=True):
+                    profile.prepare(prefix, {'ini': 'Ahnenblatt4.ini'}, files=data)
+                ini = prefix / 'drive_c/users/abc/AppData/Roaming/Ahnenblatt/Ahnenblatt4.ini'
+                settings = ini.read_text(encoding='utf-16')
+                self.assertIn('Familien=D:\\\n', settings)
+                self.assertIn(f'Bilder=D:\\{pictures}\n', settings)
+                self.assertNotIn('Ausgaben=', settings)
+                self.assertEqual({p.name for p in data.iterdir()},
+                                 {'family.ahn', 'Example Family Media', pictures})
+                self.assertEqual((data / 'family.ahn').read_bytes(), b'genealogy placeholder')
+                self.assertEqual((media / 'photo.jpg').read_bytes(), b'photo placeholder')
 
     def test_existing_application_directory_is_not_replaced(self):
         with tempfile.TemporaryDirectory() as directory:
