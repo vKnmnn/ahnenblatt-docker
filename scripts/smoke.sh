@@ -97,6 +97,7 @@ docker exec -u abc "$name" bash -c '
     wine reg query "HKCU\Control Panel\International" /v sShortDate | grep -Eq '\''d{1,2}\.M{1,2}\.yyyy'\''
     test -f "$WINEPREFIX/drive_c/windows/syswow64/rundll32.exe"
     wine "C:\windows\syswow64\cmd.exe" /c echo wow64-ok | tr -d "\r" | grep -qx wow64-ok
+    wine reg add "HKCU\Software\AhnenblattSmoke" /v Preserve /d smoke-preserved /f
     echo persisted > "$WINEPREFIX/smoke-sentinel"
     test ! -d /tmp/build-prefix
     test ! -f /tmp/ahnenblatt-setup.exe
@@ -108,6 +109,28 @@ docker exec -u abc "$name" bash -c '
     set -euo pipefail
     series=$(python3 -c '\''import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])'\'')
     grep -qx persisted "/config/versions/$series/wineprefix/smoke-sentinel"
+    grep -qx upload-smoke-ok /config/files/upload-smoke.txt
+'
+progress 'repair of a profile missing WoW64 components'
+# Only damage the disposable test volume, with all Wine processes stopped.
+# Keep registries and personal files to exercise an in-place update.
+docker stop "$name" >/dev/null
+docker run --rm --network none --user abc --entrypoint bash \
+    --mount "type=volume,source=$volume,target=/config" "$image" -c '
+    set -euo pipefail
+    series=$(python3 -c '\''import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])'\'')
+    prefix="/config/versions/$series/wineprefix"
+    mv "$prefix/drive_c/windows/syswow64" "$prefix/drive_c/windows/syswow64-smoke-backup"
+'
+docker start "$name" >/dev/null
+wait_for_window
+docker exec -u abc "$name" bash -c '
+    set -euo pipefail
+    series=$(python3 -c '\''import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])'\'')
+    export WINEPREFIX="/config/versions/$series/wineprefix" DISPLAY=:1 WINEDEBUG=-all
+    wine "C:\windows\syswow64\cmd.exe" /c echo repaired-ok | tr -d "\r" | grep -qx repaired-ok
+    wine reg query "HKCU\Software\AhnenblattSmoke" /v Preserve | grep -q smoke-preserved
+    grep -qx persisted "$WINEPREFIX/smoke-sentinel"
     grep -qx upload-smoke-ok /config/files/upload-smoke.txt
 '
 echo "Smoke test passed: $image (window, offline startup, Selkies upload/download, D: mapping, persistence)"
