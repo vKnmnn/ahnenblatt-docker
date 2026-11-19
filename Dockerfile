@@ -16,10 +16,14 @@ ENV LANG=en_US.UTF-8 \
     SELKIES_AUDIO_ENABLED="false|locked" SELKIES_MICROPHONE_ENABLED="false|locked" \
     SELKIES_UI_SHOW_CORE_BUTTONS=false SELKIES_UI_SIDEBAR_SHOW_AUDIO_SETTINGS=false \
     SELKIES_UI_SIDEBAR_SHOW_GAMEPADS=false SELKIES_UI_SIDEBAR_SHOW_GAMING_MODE=false \
-    SELKIES_UI_SIDEBAR_SHOW_WEBCAM=false SELKIES_UI_SIDEBAR_SHOW_APPS=false
+    SELKIES_UI_SIDEBAR_SHOW_WEBCAM=false SELKIES_UI_SIDEBAR_SHOW_APPS=false \
+    SELKIES_UI_SIDEBAR_SHOW_STATS=false \
+    SELKIES_UI_SIDEBAR_SHOW_VIDEO_SETTINGS=false \
+    SELKIES_UI_SIDEBAR_SHOW_SCREEN_SETTINGS=false \
+    SELKIES_UI_SIDEBAR_SHOW_SHARING=false SELKIES_ENABLE_SHARING="false|locked"
 
 FROM desktop AS runtime
-ARG WINE_VERSION=10
+ARG WINE_VERSION=11
 ENV AHNENBLATT_WINE_VERSION=${WINE_VERSION}
 COPY scripts/install-wine.sh /build/scripts/install-wine.sh
 RUN bash /build/scripts/install-wine.sh "${WINE_VERSION}" \
@@ -33,14 +37,14 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 COPY versions/ /build/versions/
 COPY scripts/versions.py /build/scripts/versions.py
-ARG SERIES=4
+ARG SERIES=5
 RUN python3 /build/scripts/versions.py fetch "${SERIES}" /tmp/ahnenblatt-setup.exe
 COPY scripts/install-build.sh /build/scripts/install-build.sh
 COPY scripts/build-steps.sh /build/scripts/build-steps.sh
 RUN xvfb-run -a bash /build/scripts/install-build.sh "${SERIES}"
 
 FROM runtime AS final
-ARG SERIES=4
+ARG SERIES=5
 ARG VERSION
 ARG SOURCE_URL
 ARG REVISION=unknown
