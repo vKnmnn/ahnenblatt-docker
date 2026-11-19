@@ -19,25 +19,17 @@ ENV LANG=en_US.UTF-8 \
     SELKIES_UI_SIDEBAR_SHOW_WEBCAM=false SELKIES_UI_SIDEBAR_SHOW_APPS=false
 
 FROM desktop AS runtime
-ARG SERIES=2.99
-# Keep existing win64 profiles for older applications, but omit i386 for 4/5.
-RUN set -eu; \
-    case "$SERIES" in \
-      2.99|3) dpkg --add-architecture i386; wine_packages="wine wine64 wine32:i386" ;; \
-      4|5) wine_packages="wine wine64" ;; \
-      *) echo "Unsupported Ahnenblatt series: $SERIES" >&2; exit 1 ;; \
-    esac; \
-    apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $wine_packages \
- && rm -rf /var/lib/apt/lists/*
+ARG WINE_VERSION=10
+ENV AHNENBLATT_WINE_VERSION=${WINE_VERSION}
+COPY scripts/install-wine.sh /build/scripts/install-wine.sh
+RUN bash /build/scripts/install-wine.sh "${WINE_VERSION}" \
+ && rm /build/scripts/install-wine.sh
 
-# Installers and winetricks may need 32-bit Wine even for a 64-bit application.
-# This stage is not inherited by the final image.
-FROM desktop AS installer
-RUN dpkg --add-architecture i386 \
- && apt-get update \
+# Use the same complete Wine runtime for installation and application startup.
+FROM runtime AS installer
+RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      wine wine64 wine32:i386 xvfb xauth curl cabextract unzip winetricks libimage-exiftool-perl \
+      xvfb xauth curl cabextract unzip winetricks libimage-exiftool-perl \
  && rm -rf /var/lib/apt/lists/*
 COPY versions/ /build/versions/
 COPY scripts/versions.py /build/scripts/versions.py
