@@ -1,6 +1,6 @@
 services:
   ahnenblatt:
-    image: ${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}:${SERIES:-4}
+    image: ${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}:${SERIES:-4}-wine${WINE_VERSION:-10}
     platform: linux/amd64
     environment:
       PUID: ${PUID:-1000}
