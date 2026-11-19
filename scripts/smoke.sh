@@ -48,7 +48,6 @@ docker exec "$name" bash -c '
         *) echo "Unexpected Wine version" >&2; exit 1 ;;
     esac
     case "$AHNENBLATT_WINE_VERSION" in
-        10) packages=(wine64 wine32:i386) ;;
         11) packages=(wine-stable-amd64 wine-stable-i386:i386) ;;
         *) exit 1 ;;
     esac
@@ -80,6 +79,8 @@ docker exec "$name" curl --fail --silent --show-error --insecure \
     https://localhost:3001/api/health >/dev/null
 docker exec "$name" curl --fail --silent --show-error --insecure https://localhost:3001/ >/dev/null
 docker exec "$name" bash -c 'test "$FILE_MANAGER_PATH" = /config/files'
+progress 'Selkies default browser settings'
+docker exec -i "$name" /lsiopy/bin/python3 - false < scripts/check-selkies.py
 progress 'file upload and download'
 # Exercise the same upload/download API as the browser, then read through Wine.
 docker exec "$name" curl --fail --silent --show-error --insecure \
@@ -110,4 +111,21 @@ docker exec -u abc "$name" bash -c '
     grep -qx persisted "/config/versions/$series/wineprefix/smoke-sentinel"
     grep -qx upload-smoke-ok /config/files/upload-smoke.txt
 '
-echo "Smoke test passed: $image (window, offline startup, Selkies upload/download, D: mapping, persistence)"
+progress 'Selkies runtime overrides'
+docker rm -f "$name" >/dev/null
+created_container=false
+docker create --name "$name" --network none --shm-size 1g \
+    -e LC_ALL=de_DE.UTF-8 -e LANG=de_DE.UTF-8 \
+    -e SELKIES_UI_SIDEBAR_SHOW_STATS=true \
+    -e SELKIES_UI_SIDEBAR_SHOW_VIDEO_SETTINGS=true \
+    -e SELKIES_UI_SIDEBAR_SHOW_SCREEN_SETTINGS=true \
+    -e SELKIES_UI_SIDEBAR_SHOW_SHARING=true -e SELKIES_ENABLE_SHARING=true \
+    --mount "type=volume,source=$volume,target=/config" "$image" >/dev/null
+created_container=true
+docker start "$name" >/dev/null
+wait_for_window
+docker exec "$name" curl --fail --silent --show-error --insecure \
+    --retry 30 --retry-connrefused --retry-delay 1 --max-time 5 \
+    https://localhost:3001/api/health >/dev/null
+docker exec -i "$name" /lsiopy/bin/python3 - true < scripts/check-selkies.py
+echo "Smoke test passed: $image (window, offline startup, Selkies settings and upload/download, D: mapping, persistence)"
