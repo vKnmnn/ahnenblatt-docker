@@ -34,6 +34,7 @@ wait_for_window() {
     return 1
 }
 wait_for_window
+docker exec -u abc "$name" xdotool search --onlyvisible --class '^AhnenblattDesktop$' >/dev/null
 # Check the Selkies frontend as well as the Wine window.
 docker exec "$name" curl --fail --silent --show-error --insecure \
     --retry 30 --retry-connrefused --retry-delay 1 --max-time 5 \

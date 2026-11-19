@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+export DISPLAY=${DISPLAY:-:1}
+for ((attempt=0; attempt<120; attempt++)); do
+    if s6-setuidgid abc xset q >/dev/null 2>&1; then
+        exec s6-setuidgid abc /usr/bin/python3 /usr/local/lib/ahnenblatt/desktop.py
+    fi
+    sleep 1
+done
+echo '[ahnenblatt] Desktop display unavailable' >&2
+exit 1
