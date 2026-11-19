@@ -26,7 +26,8 @@ jobs:
       fail-fast: false
       matrix:
         series: ['2.99', '3', '4', '5']
-        wine: ['10', '11']
+    env:
+      WINE_VERSION: '11'
     permissions:
       contents: read
       packages: write
@@ -45,7 +46,6 @@ jobs:
         env:
           REPOSITORY: ${{ github.repository }}
           SERIES: ${{ matrix.series }}
-          WINE_VERSION: ${{ matrix.wine }}
         run: |
           echo "IMAGE=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_ENV"
           echo "SOURCE_URL=https://github.com/$REPOSITORY" >> "$GITHUB_ENV"
@@ -71,23 +71,21 @@ jobs:
           push: false
           build-args: |
             SERIES=${{ matrix.series }}
-            WINE_VERSION=${{ matrix.wine }}
+            WINE_VERSION=${{ env.WINE_VERSION }}
             VERSION=${{ env.VERSION }}
             SOURCE_URL=${{ env.SOURCE_URL }}
             REVISION=${{ github.sha }}
           tags: ${{ steps.metadata.outputs.tags }}
-          cache-from: type=gha,version=2,scope=ahnenblatt-${{ matrix.series }}-wine${{ matrix.wine }}
-          cache-to: type=gha,version=2,scope=ahnenblatt-${{ matrix.series }}-wine${{ matrix.wine }},mode=max,ignore-error=true
+          cache-from: type=gha,version=2,scope=ahnenblatt-${{ matrix.series }}-wine11
+          cache-to: type=gha,version=2,scope=ahnenblatt-${{ matrix.series }}-wine11,mode=max,ignore-error=true
       - name: Smoke test
         env:
           SERIES: ${{ matrix.series }}
-          WINE_VERSION: ${{ matrix.wine }}
         run: make smoke
       - name: Publish tested image
         if: github.event_name == 'workflow_dispatch' && inputs.publish
         env:
           SERIES: ${{ matrix.series }}
-          WINE_VERSION: ${{ matrix.wine }}
         run: |
           tag_list=$(python3 scripts/image-tags.py "$SERIES" "$WINE_VERSION" "$IMAGE")
           while IFS= read -r tag; do docker push "$tag"; done <<< "$tag_list"
