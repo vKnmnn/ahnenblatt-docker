@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 image=${1:?image tag required}
+step='container setup'
+trap 'status=$?; echo "[smoke] FAILED: $step (line $LINENO, exit $status)" >&2' ERR
+progress() {
+    step=$1
+    echo "[smoke] $step"
+}
 # Include the actual daemon version when diagnosing Wine socket failures.
 docker version --format 'Docker server: {{.Server.Version}}'
 name="ahnenblatt-smoke-$$-$RANDOM"
@@ -33,14 +39,31 @@ wait_for_window() {
     echo 'No visible Ahnenblatt window within 240 seconds' >&2
     return 1
 }
+progress 'initial application window'
 wait_for_window
-docker exec -u abc "$name" xdotool search --onlyvisible --class '^AhnenblattDesktop$' >/dev/null
+progress 'desktop notice'
+# The independent desktop service may become ready after the application.
+wait_for_desktop() {
+    for ((attempt=0; attempt<30; attempt++)); do
+        if docker exec -u abc -e DISPLAY=:1 "$name" xdotool search --onlyvisible \
+            --class '^AhnenblattDesktop$' >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep 2
+    done
+    echo 'No visible desktop notice within 60 seconds' >&2
+    docker exec -u abc -e DISPLAY=:1 "$name" xwininfo -root -tree >&2 || true
+    return 1
+}
+wait_for_desktop
+progress 'Selkies health and frontend'
 # Check the Selkies frontend as well as the Wine window.
 docker exec "$name" curl --fail --silent --show-error --insecure \
     --retry 30 --retry-connrefused --retry-delay 1 --max-time 5 \
     https://localhost:3001/api/health >/dev/null
 docker exec "$name" curl --fail --silent --show-error --insecure https://localhost:3001/ >/dev/null
 docker exec "$name" bash -c 'test "$FILE_MANAGER_PATH" = /config/files'
+progress 'file upload and download'
 # Exercise the same upload/download API as the browser, then read through Wine.
 docker exec "$name" curl --fail --silent --show-error --insecure \
     -H 'Origin: https://localhost:3001' -H 'X-Upload-Path: upload-smoke.txt' \
@@ -48,6 +71,7 @@ docker exec "$name" curl --fail --silent --show-error --insecure \
 download=$(docker exec "$name" curl --fail --silent --show-error --insecure \
     https://localhost:3001/api/files/upload-smoke.txt)
 [[ "$download" == upload-smoke-ok ]]
+progress 'Wine drive and profile checks'
 docker exec -u abc "$name" bash -c '
     set -euo pipefail
     series=$(python3 -c '\''import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])'\'')
@@ -57,6 +81,7 @@ docker exec -u abc "$name" bash -c '
     test ! -d /tmp/build-prefix
     test ! -f /tmp/ahnenblatt-setup.exe
 '
+progress 'restart and persistence'
 docker restart "$name" >/dev/null
 wait_for_window
 docker exec -u abc "$name" bash -c '
