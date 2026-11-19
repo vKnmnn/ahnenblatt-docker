@@ -7,12 +7,17 @@ RUN dpkg --add-architecture i386 \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       wine wine64 wine32:i386 fonts-dejavu-core fonts-liberation fonts-noto-core \
-      fontconfig tint2 python3 python3-xdg util-linux xdotool ca-certificates \
+      fontconfig tint2 python3 python3-xdg python3-gi gir1.2-gtk-3.0 x11-xserver-utils util-linux xdotool ca-certificates \
  && rm -rf /var/lib/apt/lists/*
-ENV LC_ALL=de_DE.UTF-8 \
+ENV LANG=en_US.UTF-8 \
     TZ=Europe/Berlin WINEDEBUG=-all WINEDLLOVERRIDES=mscoree= \
     FILE_MANAGER_PATH=/config/files TITLE=Ahnenblatt \
-    PIXELFLUX_WAYLAND=false LSIO_FIRST_PARTY=false
+    PIXELFLUX_WAYLAND=false LSIO_FIRST_PARTY=false SELKIES_DESKTOP=false \
+    NO_GAMEPAD=true NO_WEBCAM=true \
+    SELKIES_AUDIO_ENABLED="false|locked" SELKIES_MICROPHONE_ENABLED="false|locked" \
+    SELKIES_UI_SHOW_CORE_BUTTONS=false SELKIES_UI_SIDEBAR_SHOW_AUDIO_SETTINGS=false \
+    SELKIES_UI_SIDEBAR_SHOW_GAMEPADS=false SELKIES_UI_SIDEBAR_SHOW_GAMING_MODE=false \
+    SELKIES_UI_SIDEBAR_SHOW_WEBCAM=false SELKIES_UI_SIDEBAR_SHOW_APPS=false
 
 FROM runtime AS installer
 RUN apt-get update \
@@ -44,7 +49,9 @@ COPY --from=installer /build-output/app/ /opt/ahnenblatt/
 COPY --from=installer /build-output/fonts/ /usr/local/share/fonts/ahnenblatt/
 COPY --from=installer /build-output/app.json /opt/ahnenblatt-image.json
 COPY root/ /
-RUN chmod +x /etc/services.d/ahnenblatt/run /etc/services.d/ahnenblatt/finish \
+RUN /usr/bin/python3 /usr/local/lib/ahnenblatt/configure-openbox.py /etc/xdg/openbox/rc.xml \
+ && cp /etc/xdg/openbox/rc.xml /etc/xdg/openbox/rc.xml.bak \
+ && chmod +x /etc/services.d/ahnenblatt-desktop/run /etc/services.d/ahnenblatt/run /etc/services.d/ahnenblatt/finish \
       /usr/local/bin/ahnenblatt-start /usr/local/bin/ahnenblatt-healthcheck \
  && fc-cache -f
 HEALTHCHECK --start-period=180s --interval=30s --timeout=10s --retries=3 \
