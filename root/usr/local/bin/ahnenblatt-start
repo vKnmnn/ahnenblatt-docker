@@ -39,6 +39,11 @@ if [[ ! -f "$WINEPREFIX/.initialized-v1" ]]; then
     wine regedit /S /fontsmoothing.reg 9>&-
     timeout 180 wineserver -w 9>&-
     touch "$WINEPREFIX/.initialized-v1"
+elif [[ ! -f "$WINEPREFIX/drive_c/windows/syswow64/rundll32.exe" ]]; then
+    # Repair profiles initialized by the former 64-bit-only runtime in place.
+    echo '[ahnenblatt] Restoring missing Wine WoW64 system components'
+    timeout 180 wineboot -u 9>&-
+    timeout 180 wineserver -w 9>&-
 fi
 
 if [[ ! -f "$WINEPREFIX/drive_c/AhnenblattApp/$exe" ]]; then
