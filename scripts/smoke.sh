@@ -26,6 +26,7 @@ docker volume create "$volume" >/dev/null
 created_volume=true
 # No network: first startup must work entirely from the image.
 docker create --name "$name" --network none --shm-size 1g \
+    -e DATE_FORMAT=dd.MM.yyyy \
     --mount "type=volume,source=$volume,target=/config" "$image" >/dev/null
 created_container=true
 docker start "$name" >/dev/null
@@ -94,6 +95,7 @@ docker exec -u abc "$name" bash -c '
     series=$(python3 -c '\''import json; print(json.load(open("/opt/ahnenblatt-image.json"))["series"])'\'')
     export WINEPREFIX="/config/versions/$series/wineprefix" DISPLAY=:1 WINEDEBUG=-all
     wine cmd /c type "D:\\upload-smoke.txt" | tr -d "\r" | grep -qx upload-smoke-ok
+    wine reg query "HKCU\Control Panel\International" /v sShortDate | grep -Fq dd.MM.yyyy
     echo persisted > "$WINEPREFIX/smoke-sentinel"
     test ! -d /tmp/build-prefix
     test ! -f /tmp/ahnenblatt-setup.exe
