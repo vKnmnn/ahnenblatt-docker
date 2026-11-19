@@ -45,8 +45,6 @@ if [[ ! -f "$WINEPREFIX/drive_c/AhnenblattApp/$exe" ]]; then
     echo "[ahnenblatt] Application link missing; check $WINEPREFIX/drive_c/AhnenblattApp" >&2
     exit 1
 fi
-# Apply explicit overrides to new and existing profiles before starting Wine apps.
-python3 /usr/local/lib/ahnenblatt/configure-date.py 9>&-
 cd /config/files
 echo "[ahnenblatt] Starting $exe (series $series)"
 wine "C:\\AhnenblattApp\\$exe" 9>&- &
