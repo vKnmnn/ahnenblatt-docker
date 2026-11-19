@@ -48,6 +48,7 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 | `DATA_DIR` | Ahnenblatt-Datenordner auf dem Host; standardmäßig `CONFIG_DIR/files` |
 | `HTTPS_PORT` | HTTPS-Port der Weboberfläche, standardmäßig `3001` |
 | `HTTP_PORT` | HTTP-Port für einen Reverse-Proxy, standardmäßig `3000` |
+| `DATE_FORMAT` | Optionales Windows-Datumsformat, z. B. `dd.MM.yyyy`; leer lässt es unverändert |
 | `APP_LOCALE` | Wine-/Desktop-Locale, standardmäßig `en_US.UTF-8` |
 | `PUID`, `PGID` | Benutzer- und Gruppen-ID für Dateirechte |
 | `CUSTOM_USER`, `PASSWORD` | Optionale HTTP-Basisauthentifizierung |
@@ -90,8 +91,7 @@ beim gemeinsamen Mount der `.ahn`-Datei und ihrer Medienordner erhalten.
 
 Neue Profile verwenden `D:\` als Vorgabe für Ahnendateien und Suchbegriffe.
 Für Bilder wird bei deutscher Containersprache `D:\Bilder`, sonst
-`D:\Pictures` angelegt (Vorrang: `LC_ALL`, `LC_MESSAGES`, `LANG`). Eine
-Ausgabeordner-Vorgabe wird nicht gesetzt. Vorhandene INI-Einstellungen und
+`D:\Pictures` angelegt (Vorrang: `LC_ALL`, `LC_MESSAGES`, `LANG`). Der Ausgabeordner heißt entsprechend `D:\Ausgabe` oder `D:\Output`. Vorhandene INI-Einstellungen und
 Ordner werden nicht überschrieben, umbenannt oder gelöscht; bei bestehenden
 Profilen die gewünschten Pfade direkt in Ahnenblatt einstellen.
 
@@ -122,6 +122,28 @@ setzt Compose `LANG=de_DE.UTF-8` im Container. Bei direktem `docker run` genügt
 oder `LANG` (in dieser Reihenfolge): Deutsch für `de`, sonst Englisch.
 Die Locale ersetzt nicht die Sprachauswahl in Ahnenblatt und setzt bestehende
 Einstellungen nicht zurück. Noto-Schriftarten ergänzen die Zeichenabdeckung.
+
+## Datumsformat
+
+Das Windows-Datumsformat lässt sich unabhängig von der Oberflächensprache in
+`.env` setzen:
+
+```dotenv
+DATE_FORMAT=dd.MM.yyyy
+```
+
+Unterstützt werden numerische Formate in der Reihenfolge Tag–Monat–Jahr,
+Monat–Tag–Jahr oder Jahr–Monat–Tag, mit Punkt, Schrägstrich oder Bindestrich,
+z. B. `dd.MM.yyyy`, `MM/dd/yyyy`, `dd/MM/yyyy` und `yyyy-MM-dd`.
+Die Schreibweise verwendet `d` für Tag, `M` für Monat und `yy`/`yyyy` für Jahr.
+Bei `docker run` entspricht dies `-e DATE_FORMAT=dd.MM.yyyy`.
+
+Nach einer Änderung den Container mit `docker compose up -d` neu erstellen.
+Die Vorgabe wird vor jedem Ahnenblatt-Start auch auf bestehende Wine-Profile
+angewendet. Ohne Vorgabe bleibt das gespeicherte Windows-Format erhalten;
+das Entfernen der Variable setzt einen zuvor gesetzten Wert nicht zurück.
+Das Format sollte dem unter **Datei → Eigenschaften → Datumsformat** in der
+Ahnendatei gespeicherten Format entsprechen. Die Datei selbst wird nicht verändert.
 
 ## Selbst bauen und testen
 

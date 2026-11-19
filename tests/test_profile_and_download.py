@@ -58,9 +58,10 @@ class ProfileTests(unittest.TestCase):
                 settings = ini.read_text(encoding='utf-16')
                 self.assertIn('Familien=D:\\\n', settings)
                 self.assertIn(f'Bilder=D:\\{pictures}\n', settings)
-                self.assertNotIn('Ausgaben=', settings)
+                output = 'Ausgabe' if pictures == 'Bilder' else 'Output'
+                self.assertIn(f'Ausgaben=D:\\{output}\n', settings)
                 self.assertEqual({p.name for p in data.iterdir()},
-                                 {'family.ahn', 'Example Family Media', pictures})
+                                 {'family.ahn', 'Example Family Media', pictures, output})
                 self.assertEqual((data / 'family.ahn').read_bytes(), b'genealogy placeholder')
                 self.assertEqual((media / 'photo.jpg').read_bytes(), b'photo placeholder')
 

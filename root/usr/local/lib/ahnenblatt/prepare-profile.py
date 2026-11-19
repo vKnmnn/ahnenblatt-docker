@@ -19,7 +19,9 @@ def prepare(prefix, metadata, app=Path('/opt/ahnenblatt'), files=Path('/config/f
                   or os.environ.get('LANG') or 'en_US.UTF-8')
         language = locale.lower().split('_')[0].split('-')[0].split('.')[0]
         pictures = 'Bilder' if language == 'de' else 'Pictures'
-        (files / pictures).mkdir(parents=True, exist_ok=True)
+        output = 'Ausgabe' if language == 'de' else 'Output'
+        for folder in (pictures, output):
+            (files / folder).mkdir(parents=True, exist_ok=True)
         settings.parent.mkdir(parents=True, exist_ok=True)
         # Standard installations use AppData, rather than portable settings
         # alongside the executable. The image application directory stays immutable.
@@ -28,6 +30,7 @@ def prepare(prefix, metadata, app=Path('/opt/ahnenblatt'), files=Path('/config/f
             'Familien=D:\\\r\n'
             'Suchbegriffe=D:\\\r\n'
             f'Bilder=D:\\{pictures}\r\n'
+            f'Ausgaben=D:\\{output}\r\n'
             'UseAhnfileDir=0\r\n', encoding='utf-16', newline='',
         )
 
