@@ -174,11 +174,21 @@ in einem isolierten Container ohne Netzwerk den Anwendungsstart, Selkies-Uploads
 über `D:` und den Erhalt der Daten nach einem Neustart. Für alle Varianten gibt
 es `make build-all` und `make smoke-all`.
 
+Vor jedem Git-Push müssen die betroffenen Images auf dem Docker-Testhost
+erfolgreich gebaut werden und die Smoke-Tests bestehen. Statische Prüfungen
+allein genügen nicht; so werden unnötige GitHub-Actions-Builds vermieden.
+Temporäre Testressourcen anschließend gezielt entfernen.
+
 Der Build installiert Ahnenblatt in einem temporären Wine-Profil. Nur
 Programmdateien, zusätzliche Schriftarten und Versionsmetadaten gelangen ins
 finale Image. Das persönliche Wine-Profil wird beim ersten Containerstart erzeugt.
 Anwendungsupdates erfolgen über neue Images. Beide Wine-Varianten enthalten
 32- und 64-Bit-Komponenten, auch für die Initialisierung der Wine-Profile.
+Profile aus den früheren x64-only-Images müssen bei Startproblemen neu angelegt
+werden. Dazu den Container stoppen, `/config/versions/<Serie>/wineprefix`
+sichern und aus dem Konfigurationsverzeichnis entfernen. Beim nächsten Start
+entsteht ein frisches Profil; Einstellungen und Freischaltung müssen erneut
+eingerichtet werden. Den separaten Datenordner `/config/files` behalten.
 Wine 10 stammt aus Debian Trixie, Wine 11.0 aus dem offiziellen WineHQ-Repository.
 Die WineHQ-Trixie-Pakete verwenden ebenfalls einen 32-Bit-Linux-Unterbau.
 
