@@ -43,19 +43,18 @@ wait_for_window() {
 progress 'runtime Wine packages'
 docker exec "$name" bash -c '
     set -euo pipefail
-    dpkg-query -W -f="\${db:Status-Status}" wine64 | grep -qx installed
-    case "$AHNENBLATT_SERIES" in
-        4|5)
-            if dpkg --print-foreign-architectures | grep -qx i386; then
-                echo "Unexpected i386 runtime for series $AHNENBLATT_SERIES" >&2
-                exit 1
-            fi
-            ;;
-        2.99|3)
-            dpkg-query -W -f="\${db:Status-Status}" wine32:i386 | grep -qx installed
-            ;;
+    case "$(wine --version)" in
+        "wine-$AHNENBLATT_WINE_VERSION".*) ;;
+        *) echo "Unexpected Wine version" >&2; exit 1 ;;
+    esac
+    case "$AHNENBLATT_WINE_VERSION" in
+        10) packages=(wine64 wine32:i386) ;;
+        11) packages=(wine-stable-amd64 wine-stable-i386:i386) ;;
         *) exit 1 ;;
     esac
+    for package in "${packages[@]}"; do
+        dpkg-query -W -f="\${db:Status-Status}" "$package" | grep -qx installed
+    done
 '
 progress 'initial application window'
 wait_for_window
@@ -96,6 +95,8 @@ docker exec -u abc "$name" bash -c '
     export WINEPREFIX="/config/versions/$series/wineprefix" DISPLAY=:1 WINEDEBUG=-all
     wine cmd /c type "D:\\upload-smoke.txt" | tr -d "\r" | grep -qx upload-smoke-ok
     wine reg query "HKCU\Control Panel\International" /v sShortDate | grep -Eq '\''d{1,2}\.M{1,2}\.yyyy'\''
+    test -f "$WINEPREFIX/drive_c/windows/syswow64/rundll32.exe"
+    wine "C:\windows\syswow64\cmd.exe" /c echo wow64-ok | tr -d "\r" | grep -qx wow64-ok
     echo persisted > "$WINEPREFIX/smoke-sentinel"
     test ! -d /tmp/build-prefix
     test ! -f /tmp/ahnenblatt-setup.exe
