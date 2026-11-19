@@ -48,7 +48,7 @@ Optional `.env.example` nach `.env` kopieren und anpassen:
 | `DATA_DIR` | Ahnenblatt-Datenordner auf dem Host; standardmäßig `CONFIG_DIR/files` |
 | `HTTPS_PORT` | HTTPS-Port der Weboberfläche, standardmäßig `3001` |
 | `HTTP_PORT` | HTTP-Port für einen Reverse-Proxy, standardmäßig `3000` |
-| `APP_LOCALE` | Gesamte Container-Locale: Sprache, Datums- und Zahlenformate; Standard `en_US.UTF-8` |
+| `LC_ALL` | Gesamte Container-Locale: Sprache, Datums- und Zahlenformate; Standard `en_US.UTF-8` |
 | `PUID`, `PGID` | Benutzer- und Gruppen-ID für Dateirechte |
 | `CUSTOM_USER`, `PASSWORD` | Optionale HTTP-Basisauthentifizierung |
 
@@ -115,12 +115,12 @@ Die Sprache wird in Ahnenblatt unter **Extras → Sprache** gewählt und im
 persönlichen Profil gespeichert. Je nach Version unterscheiden sich die
 verfügbaren Übersetzungen; unvollständige Texte können auf Englisch erscheinen.
 
-`APP_LOCALE` setzt die gesamte System-Locale des Containers über `LC_ALL` und
-`LANG`, einschließlich Sprache, Datums- und Zahlenformaten. Die LSIO-Basis setzt
-passend dazu auch `LANGUAGE`. Standard ist `en_US.UTF-8`; für Deutsch in `.env`:
+`LC_ALL` setzt die gesamte System-Locale des Containers einschließlich Sprache,
+Datums- und Zahlenformaten. Die LSIO-Basis setzt passend dazu auch `LANG` und
+`LANGUAGE`. Standard ist `en_US.UTF-8`; für Deutsch in `.env`:
 
 ```dotenv
-APP_LOCALE=de_DE.UTF-8
+LC_ALL=de_DE.UTF-8
 ```
 
 Wine übernimmt die regionalen Systemvorgaben. Eine separate Datumsformat-Variable
