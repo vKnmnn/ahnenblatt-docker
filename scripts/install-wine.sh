@@ -2,7 +2,6 @@
 set -euo pipefail
 major=${1:?Wine major required}
 case "$major" in
-    10) packages=(wine wine64 wine32:i386) ;;
     11)
         install -d -m 0755 /etc/apt/keyrings
         curl --fail --silent --show-error --location \
@@ -15,7 +14,7 @@ case "$major" in
         ;;
     *) echo "Unsupported Wine major: $major" >&2; exit 1 ;;
 esac
-# Both Debian Wine 10 and WineHQ's Trixie Wine 11 packages use multilib.
+# WineHQ's Trixie Wine 11 packages use multilib.
 dpkg --add-architecture i386
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"

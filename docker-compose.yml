@@ -1,6 +1,6 @@
 services:
   ahnenblatt:
-    image: ${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}:${SERIES:-2.99}-wine${WINE_VERSION:-10}
+    image: ${IMAGE:-ghcr.io/vknmnn/ahnenblatt-docker}:${SERIES:-2.99}
     platform: linux/amd64
     environment:
       PUID: ${PUID:-1000}
@@ -10,6 +10,11 @@ services:
       PASSWORD: ${PASSWORD:-}
       FILE_MANAGER_PATH: /config/files
       LC_ALL: ${LC_ALL:-en_US.UTF-8}
+      SELKIES_UI_SIDEBAR_SHOW_STATS: ${SELKIES_UI_SIDEBAR_SHOW_STATS:-false}
+      SELKIES_UI_SIDEBAR_SHOW_VIDEO_SETTINGS: ${SELKIES_UI_SIDEBAR_SHOW_VIDEO_SETTINGS:-false}
+      SELKIES_UI_SIDEBAR_SHOW_SCREEN_SETTINGS: ${SELKIES_UI_SIDEBAR_SHOW_SCREEN_SETTINGS:-false}
+      SELKIES_UI_SIDEBAR_SHOW_SHARING: ${SELKIES_UI_SIDEBAR_SHOW_SHARING:-false}
+      SELKIES_ENABLE_SHARING: ${SELKIES_ENABLE_SHARING:-false|locked}
     volumes:
       - ${CONFIG_DIR:-./data/2.99}:/config
       - ${DATA_DIR:-${CONFIG_DIR:-./data/2.99}/files}:/config/files
